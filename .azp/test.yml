@@ -1,5 +1,5 @@
 variables:
-  image_root: glotzerlab/ci:2020.05
+  image_root: glotzerlab/ci:2020.07
 
   # default build parameters, will override as needed with job matrix values
   enable_gpu: off
@@ -166,6 +166,10 @@ stages:
 
     strategy:
       matrix:
+        cuda11_py37_mpi:
+          container_image: cuda11_gcc7_py37
+          enable_mpi: on
+
         cuda10_py37_mng_mpi:
           container_image: cuda10_gcc7_py37
           always_use_managed_memory: on
@@ -193,6 +197,8 @@ stages:
     - template: templates/build_test.yml
 
 - stage: build_test_amd
+  # temporarily disable testing on AMD because the containers are not functional
+  condition: false
   displayName: Unit test (AMD GPU)
   dependsOn: []
   variables:
