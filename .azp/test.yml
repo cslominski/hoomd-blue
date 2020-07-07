@@ -204,7 +204,6 @@ stages:
       matrix:
         cuda11_py37_mpi:
           container_image: cuda11_gcc7_py37
-          enable_mpi: on
 
     pool:
       name: 'GPU'
