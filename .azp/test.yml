@@ -197,6 +197,8 @@ stages:
     - template: templates/run_tests.yml
 
   - job: linux_gpu_buildonly
+    # temporarily disable testing with CUDA11 because the embedded HIP is not compatible
+    condition: false
     displayName: Linux build
     timeoutInMinutes: 75
 
