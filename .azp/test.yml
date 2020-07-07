@@ -118,7 +118,9 @@ stages:
       options: -u 0
 
     steps:
-    - template: templates/build_test.yml
+    - template: templates/build.yml
+    - template: templates/run_tests.yml
+
 
   - job: mac_cpu
     displayName: macOS
@@ -151,7 +153,8 @@ stages:
     - script: python3 -m pip install pytest numpy gsd
       displayName: Pip install prereqs
 
-    - template: templates/build_test.yml
+    - template: templates/build.yml
+    - template: templates/run_tests.yml
 
 - stage: build_test_nvidia
   displayName: Unit test (NVIDIA GPU)
@@ -166,10 +169,6 @@ stages:
 
     strategy:
       matrix:
-        cuda11_py37_mpi:
-          container_image: cuda11_gcc7_py37
-          enable_mpi: on
-
         cuda10_py37_mng_mpi:
           container_image: cuda10_gcc7_py37
           always_use_managed_memory: on
@@ -194,7 +193,32 @@ stages:
       clean: all
 
     steps:
-    - template: templates/build_test.yml
+    - template: templates/build.yml
+    - template: templates/run_tests.yml
+
+  - job: linux_gpu_buildonly
+    displayName: Linux build
+    timeoutInMinutes: 75
+
+    strategy:
+      matrix:
+        cuda11_py37_mpi:
+          container_image: cuda11_gcc7_py37
+          enable_mpi: on
+
+    pool:
+      name: 'GPU'
+      demands: short_jobs
+
+    container:
+       image: $(image_root)-$(container_image)
+       options: -u 0 --cpus=4 --memory=16g -e CUDA_VISIBLE_DEVICES
+
+    workspace:
+      clean: all
+
+    steps:
+    - template: templates/build.yml
 
 - stage: build_test_amd
   # temporarily disable testing on AMD because the containers are not functional
@@ -237,7 +261,8 @@ stages:
       displayName: Add render group
     - script: sudo usermod -G render `whoami`
       displayName: Add user to render group
-    - template: templates/build_test.yml
+    - template: templates/build.yml
+    - template: templates/run_tests.yml
 
 - stage: doc
   displayName: Documentation
